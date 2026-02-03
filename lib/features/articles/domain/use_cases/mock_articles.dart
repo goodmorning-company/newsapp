@@ -26,8 +26,26 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-1',
     title: 'AI Is Reshaping the Future of Work',
-    body:
-        'Enterprises are piloting copilots for every role, shifting focus from task execution to supervision and judgment. Experts warn culture must adapt as fast as the tools.',
+    body: '''
+Knowledge work is shifting from **execution** to *supervision*, as copilots slide into every role from finance to field ops. The real delta isn’t output speed—it’s judgment quality.
+
+## What changes first
+- Approval chains compress as drafts arrive fully formed.
+- Managers now coach on prompts, not just outcomes.
+- Compliance teams run parallel reviews on AI-assisted decisions.
+
+### Culture has to catch up
+Teams that narrate their decisions keep trust high. Silent automation erodes confidence.
+
+> “If you can’t explain how a decision was shaped, you can’t defend it,” notes chief risk officer Nia Malik.
+
+## The near-term playbook
+1. Publish guidelines on acceptable AI use.
+2. Track when and where generated text enters the workflow.
+3. Incentivize *explanations* over raw velocity.
+
+The companies that win will pair model literacy with humane pacing—protecting focus while keeping humans firmly in the loop.
+''',
     author: mockAuthors[0],
     coverImageUrl: 'https://picsum.photos/seed/article-1/800/600',
     tags: ['AI', 'Work'],
@@ -39,8 +57,22 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-2',
     title: 'Global Markets React to New Tech Policies',
-    body:
-        'Regulators in the EU and US coordinated fresh guidance on data exports, sending ripples across cloud providers and fintechs reliant on cross-border flows.',
+    body: '''
+Coordinated guidance on cross-border data exports from the EU and US has jolted cloud providers and fintechs that rely on frictionless flows.
+
+## Why this matters
+**Risk premiums** are reappearing in contracts, and CFOs are re-forecasting margins for 2026.
+
+### Early signals
+- Deal cycles lengthened by 2–3 weeks.
+- Banks are asking for *provable residency* for telemetry.
+- Startups are decoupling analytics from PII in staging.
+
+> “Data localization isn’t a toggle—it’s a portfolio strategy,” says policy analyst René Dubois.
+
+## What to watch
+Expect phased enforcement tied to certifications. Firms that pre-invest in region-aware architectures will regain speed while competitors renegotiate SLAs.
+''',
     author: mockAuthors[1],
     coverImageUrl: 'https://picsum.photos/seed/article-2/800/600',
     tags: ['Policy', 'Markets'],
@@ -52,8 +84,22 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-3',
     title: 'How Deep Focus Became a Competitive Advantage',
-    body:
-        'Teams that protect focus hours are outpacing peers on complex projects. Leaders are redesigning calendars, incentivizing async, and measuring flow states.',
+    body: '''
+After a decade of alerts, teams are rediscovering *protected focus* as a differentiator. Output on complex projects tracks directly to uninterrupted hours.
+
+## The calendar rewrite
+Leaders are carving **no-meeting blocks** that span time zones, pairing them with async decision logs.
+
+### Metrics that matter
+- Flow sessions per week per IC
+- Context switches avoided
+- Cycle time on deep tasks
+
+> “We measure meetings skipped as a success metric,” says product lead Maren Ito.
+
+## Small rituals, big gains
+Daily intent posts, shared silence windows, and recap threads create rhythm without noise. Teams that defend focus are shipping harder problems—calmly.
+''',
     author: mockAuthors[2],
     coverImageUrl: 'https://picsum.photos/seed/article-3/800/600',
     tags: ['Productivity', 'Culture'],
@@ -65,8 +111,22 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-4',
     title: 'Energy Storage Breakthroughs Explained',
-    body:
-        'LFP cells now dominate grid-scale storage deployments thanks to safer chemistries and falling prices. We unpack the science behind the acceleration.',
+    body: '''
+Grid operators are leaning on **LFP chemistry** as prices fall and safety margins rise, redefining how quickly renewable projects can go live.
+
+## What flipped the curve
+- Supply chain resilience in cathode materials
+- Better thermal stability vs. NMC
+- *Standardized* containerized formats for faster installs
+
+### The science, briefly
+Slower degradation under high-cycle duty makes LFP ideal for frequency response and peak shaving.
+
+> “The new constraint is interconnection, not storage tech,” notes energy analyst Priya Das.
+
+## Deployment playbook
+Pair utility-scale solar with 4–6 hour packs, pre-stage swap units, and negotiate flexible offtake tied to storage availability.
+''',
     author: mockAuthors[0],
     coverImageUrl: 'https://picsum.photos/seed/article-4/800/600',
     tags: ['Energy', 'Climate'],
@@ -78,8 +138,22 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-5',
     title: 'Designing Trust in AI-Powered Products',
-    body:
-        'Product teams are shipping transparency UIs, model cards, and opt-out controls to keep users in the loop as adaptive features roll out at scale.',
+    body: '''
+Trust is now a product surface. Teams are shipping **transparency UIs**, inline explanations, and opt-outs to keep adaptive features welcome.
+
+## Patterns that work
+- *Why this suggestion?* chips next to recommendations
+- Model cards surfaced at the point of choice
+- Granular controls that remember context
+
+### Avoiding dark patterns
+Users can feel when autonomy is eroded. Clarity beats persuasion.
+
+> “If trust costs clicks, pay it,” says design director Hao Nguyen.
+
+## Rollout sequencing
+Start with explainable defaults, measure sentiment, then layer optional personalization. The trust you build now compounds across launches.
+''',
     author: mockAuthors[1],
     coverImageUrl: 'https://picsum.photos/seed/article-5/800/600',
     tags: ['Design', 'AI'],
@@ -91,8 +165,22 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-6',
     title: 'The Quiet Comeback of Night Trains in Europe',
-    body:
-        'Rail operators are reviving overnight routes with refurbished sleepers and bundled tickets, targeting climate-conscious travelers avoiding short-haul flights.',
+    body: '''
+Night trains are back—not as nostalgia, but as a **climate-conscious alternative** to short-haul flights. Refurbished sleepers and bundled passes are lowering friction.
+
+## Demand drivers
+- Corporate travel policies favoring rail under 800 km
+- Integrated ticketing with local transit on arrival
+- Softer security flow versus airports
+
+### Passenger experience
+Cabins borrow from boutique hotels: dimmable light, linen upgrades, and quiet zones.
+
+> “Arriving rested changes the entire trip calculus,” says mobility strategist Erik Lind.
+
+## Next on the timetable
+Expect new north–south corridors and dynamic pricing tuned to shoulder seasons. The quiet comeback is becoming durable infrastructure.
+''',
     author: mockAuthors[2],
     coverImageUrl: 'https://picsum.photos/seed/article-6/800/600',
     tags: ['Transport', 'Travel'],
@@ -104,8 +192,22 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-7',
     title: 'Why Local Newsrooms Are Turning to Memberships',
-    body:
-        'Investigative desks are testing member-only briefings and transparent budgeting to stabilize funding and reduce reliance on advertising swings.',
+    body: '''
+Local desks are rebuilding resilience with **memberships**—trading ad volatility for predictable community backing.
+
+## What members get
+- Weekly briefings with reporter notes
+- Early looks at investigations
+- Open budgets that show how funds are used
+
+### Operational shifts
+Newsrooms are hiring *audience editors* who translate investigations into member updates.
+
+> “Transparency is our moat,” says managing editor Chloe Grant.
+
+## Sustainability metrics
+Renewal rate, investigation cadence, and member referrals now sit on the same dashboard as traffic. Stability follows when trust becomes the product.
+''',
     author: mockAuthors[0],
     coverImageUrl: 'https://picsum.photos/seed/article-7/800/600',
     tags: ['Media', 'Business'],
@@ -117,8 +219,22 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-8',
     title: 'Developers Embrace On-Device AI for Privacy',
-    body:
-        'Edge-optimized models allow note-taking, transcription, and translation to happen offline, reducing latency and keeping personal data on devices.',
+    body: '''
+On-device models are moving beyond demos into everyday tooling—keeping **personal data local** while slashing latency.
+
+## Where it lands first
+- Note-taking with offline transcription
+- Translation tuned to domain glossaries
+- Summaries that never touch the cloud
+
+### Engineering constraints
+Quantization and distillation keep models under thermal and battery limits.
+
+> “Privacy isn’t a feature toggle; it’s an architecture choice,” says staff engineer Rina Patel.
+
+## Product implications
+Expect premium tiers that guarantee offline-by-default. Confidence rises when the green “local” badge replaces upload spinners.
+''',
     author: mockAuthors[1],
     coverImageUrl: 'https://picsum.photos/seed/article-8/800/600',
     tags: ['AI', 'Privacy'],
@@ -130,8 +246,22 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-9',
     title: 'Cities Rethink Heat Resilience Ahead of Summer',
-    body:
-        'Urban planners are prioritizing shaded corridors, misting hubs, and cool roofs as forecasts point to another record-breaking season.',
+    body: '''
+With another record summer looming, cities are prioritizing **shaded corridors** and rapid-deploy cooling to protect residents.
+
+## The design toolkit
+- Tree canopy targets by block
+- Misting hubs near transit interchanges
+- Cool roofs mandated on public buildings
+
+### Community-first moves
+Libraries and schools stay open late as cooling anchors.
+
+> “Heat is a social equity issue before it’s an engineering one,” notes planner Dana Ortiz.
+
+## Funding the build-out
+Blended finance—municipal bonds plus climate grants—is speeding procurement. The metric: lives kept safe during the next heat wave.
+''',
     author: mockAuthors[2],
     coverImageUrl: 'https://picsum.photos/seed/article-9/800/600',
     tags: ['Cities', 'Climate'],
@@ -143,8 +273,21 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-10',
     title: 'Quantum-Safe Encryption Trials Move to Production',
-    body:
-        'Banks and health networks are piloting hybrid key exchange to prepare for post-quantum threats, balancing performance with forward secrecy.',
+    body: '''
+Banks and health networks are moving from labs to **production pilots** with hybrid key exchange, hedging against post-quantum risks.
+
+## The hybrid approach
+Classical + PQC algorithms run in parallel, preserving interoperability while testing performance ceilings.
+
+### Performance notes
+- Latency bumps are acceptable on back-office pipes.
+- Front-end sessions need smart fallback to avoid UX hits.
+
+> “This is insurance you can measure,” says CISO Malik Sorensen.
+
+## What’s next
+Vendor contracts now bake in PQC roadmaps. The winners will offer seamless rollovers once NIST finalizes standards—without forcing user retraining.
+''',
     author: mockAuthors[1],
     coverImageUrl: 'https://picsum.photos/seed/article-10/800/600',
     tags: ['Security', 'Quantum'],
