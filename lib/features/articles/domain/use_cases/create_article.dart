@@ -1,18 +1,12 @@
 import '../entities/article.dart';
-import 'mock_articles.dart';
+import '../repository/article_repository.dart';
 
 class CreateArticle {
-  const CreateArticle();
+  final ArticleRepository repository;
+
+  const CreateArticle(this.repository);
 
   Future<void> call(Article article) async {
-    final now = DateTime.now().toUtc();
-    final stored = article.id.isEmpty
-        ? article.copyWith(
-            id: 'mock-${now.microsecondsSinceEpoch}',
-            publishedAt: article.publishedAt,
-            updatedAt: now,
-          )
-        : article.copyWith(updatedAt: now);
-    mockArticles.insert(0, stored);
+    await repository.createArticle(article);
   }
 }

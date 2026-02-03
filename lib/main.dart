@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
+import 'firebase_options.dart';
 import 'features/articles/domain/use_cases/create_article.dart';
 import 'features/articles/domain/use_cases/get_article_by_id.dart';
 import 'features/articles/domain/use_cases/get_articles.dart';
@@ -11,9 +14,16 @@ import 'features/articles/presentation/screens/article_detail_screen.dart';
 import 'features/articles/presentation/screens/articles_feed_screen.dart';
 import 'features/articles/presentation/screens/create_article_screen.dart';
 import 'config/theme/theme_cubit.dart';
+import 'features/articles/data/data_sources/article_remote_data_source.dart';
+import 'features/articles/data/repository/article_repository_with_fallback.dart';
+import 'features/articles/data/repository/firebase_article_repository.dart';
+import 'features/articles/data/repository/mock_article_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const NewsApp());
 }
 
@@ -28,45 +38,60 @@ class NewsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    final firebaseArticleRepo = FirebaseArticleRepositoryImpl(
+      ArticleRemoteDataSource(FirebaseFirestore.instance),
+    );
+    final mockArticleRepo = MockArticleRepositoryImpl();
+    final articleRepository = ArticleRepositoryWithFallback(
+      primary: firebaseArticleRepo,
+      fallback: mockArticleRepo,
+    );
+
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider(
-          create: (_) => ThemeCubit(),
-        ),
-        BlocProvider(
-          create: (_) => ArticlesFeedCubit(const GetArticles()),
-        ),
-        BlocProvider(
-          create: (_) => ArticleDetailCubit(const GetArticleById()),
-        ),
-        BlocProvider(
-          create: (_) => CreateArticleCubit(
-            createArticle: const CreateArticle(),
-          ),
-        ),
+        RepositoryProvider.value(value: articleRepository),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (_, themeState) => MaterialApp(
-          title: 'High-Impact News',
-          theme: _buildLightTheme(),
-          darkTheme: _buildDarkTheme(),
-          themeMode: themeState.themeMode,
-          initialRoute: '/',
-          routes: {
-            '/': (_) => const ArticlesFeedScreen(),
-            '/create': (_) => const CreateArticleScreen(),
-          },
-          onGenerateRoute: (settings) {
-            final uri = Uri.parse(settings.name ?? '');
-            if (uri.pathSegments.length == 2 &&
-                uri.pathSegments.first == 'article') {
-              final id = uri.pathSegments[1];
-              return MaterialPageRoute(
-                builder: (_) => ArticleDetailScreen(articleId: id),
-              );
-            }
-            return null;
-          },
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => ThemeCubit()),
+          BlocProvider(
+            create: (_) =>
+                ArticlesFeedCubit(GetArticles(articleRepository))..load(),
+          ),
+          BlocProvider(
+            create: (_) => CreateArticleCubit(
+              createArticle: CreateArticle(articleRepository),
+            ),
+          ),
+        ],
+        child: BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (_, themeState) => MaterialApp(
+            title: 'High-Impact News',
+            theme: _buildLightTheme(),
+            darkTheme: _buildDarkTheme(),
+            themeMode: themeState.themeMode,
+            initialRoute: '/',
+            routes: {
+              '/': (_) => const ArticlesFeedScreen(),
+              '/create': (_) => const CreateArticleScreen(),
+            },
+            onGenerateRoute: (settings) {
+              final uri = Uri.parse(settings.name ?? '');
+              if (uri.pathSegments.length == 2 &&
+                  uri.pathSegments.first == 'article') {
+                final id = uri.pathSegments[1];
+                return MaterialPageRoute(
+                  builder: (context) => BlocProvider(
+                    create: (_) => ArticleDetailCubit(
+                      GetArticleById(articleRepository),
+                    )..load(id),
+                    child: ArticleDetailScreen(articleId: id),
+                  ),
+                );
+              }
+              return null;
+            },
+          ),
         ),
       ),
     );

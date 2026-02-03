@@ -1,14 +1,12 @@
 import '../entities/article.dart';
-import 'mock_articles.dart';
+import '../repository/article_repository.dart';
 
 class GetArticleById {
-  const GetArticleById();
+  final ArticleRepository repository;
 
-  Future<Article> call(String id) async {
-    final match = mockArticles.firstWhere(
-      (article) => article.id == id,
-      orElse: () => throw StateError('Article not found: $id'),
-    );
-    return match;
+  const GetArticleById(this.repository);
+
+  Future<Article> call(String id) {
+    return repository.getArticleById(id);
   }
 }

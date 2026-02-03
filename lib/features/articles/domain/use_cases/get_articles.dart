@@ -1,14 +1,12 @@
 import '../entities/article.dart';
-import 'mock_articles.dart';
+import '../repository/article_repository.dart';
 
 class GetArticles {
-  const GetArticles();
+  final ArticleRepository repository;
 
-  Future<List<Article>> call({int? limit}) async {
-    final articles = List<Article>.from(mockArticles);
-    if (limit == null || limit >= articles.length) {
-      return articles;
-    }
-    return articles.take(limit).toList();
+  const GetArticles(this.repository);
+
+  Future<List<Article>> call({int? limit}) {
+    return repository.getArticles(limit: limit);
   }
 }
