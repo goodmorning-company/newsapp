@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/entities/article.dart';
 import '../../domain/use_cases/get_articles.dart';
 import '../bloc/feed/articles_feed_cubit.dart';
 import '../bloc/feed/articles_feed_state.dart';
@@ -19,85 +18,108 @@ class ArticlesFeedScreen extends StatelessWidget {
         appBar: _EditorialAppBar(),
         body: BlocBuilder<ArticlesFeedCubit, ArticlesFeedState>(
           builder: (context, state) {
-            return switch (state) {
-              ArticlesFeedLoading() =>
-                const Center(child: CircularProgressIndicator()),
-              ArticlesFeedSuccess(:final List<Article> articles) => ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-                  itemCount: articles.length,
-                  itemBuilder: (_, index) {
-                    final article = articles[index];
-                    final isHero = index == 0;
-                    final isRead = index > 1 && index.isEven;
-                    final progress = isHero
-                        ? 0.22
-                        : (0.32 + (index * 0.14)).clamp(0.18, 0.95);
+            if (state is ArticlesFeedLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state is ArticlesFeedSuccess) {
+              final articles = state.articles;
+              final topCount = articles.length >= 4 ? 4 : articles.length;
+              final topStories = articles.take(topCount).toList();
+              final remaining = articles.skip(topCount).toList();
 
-                    final card = ArticleCard(
-                      article: article,
-                      isHero: isHero,
-                      isRead: isRead,
-                      progress: progress.toDouble(),
-                      onTap: () => Navigator.pushNamed(
+              return ListView(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+                children: [
+                  const SizedBox(height: 6),
+                  Text(
+                    'Today',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(
                         context,
-                        '/article/${article.id}',
-                      ),
-                    );
-
-                    if (isHero) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 6),
-                          Text(
-                            'Today',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.6),
-                                  letterSpacing: 0.4,
-                                ),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Top Stories',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.6,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    height: 360,
+                    child: PageView.builder(
+                      controller: PageController(viewportFraction: 0.9),
+                      padEnds: false,
+                      itemCount: topStories.length,
+                      itemBuilder: (context, index) {
+                        final article = topStories[index];
+                        final progress = (0.22 + index * 0.12).clamp(
+                          0.18,
+                          0.95,
+                        );
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            right: index == topStories.length - 1 ? 0 : 14,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Top Stories',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.6,
-                                ),
+                          child: ArticleCard(
+                            article: article,
+                            isHero: true,
+                            isRead: false,
+                            progress: progress.toDouble(),
+                            onTap: () => Navigator.pushNamed(
+                              context,
+                              '/article/${article.id}',
+                            ),
                           ),
-                          const SizedBox(height: 14),
-                          card,
-                          const SizedBox(height: 18),
-                          Divider(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.08),
-                          ),
-                        ],
-                      );
-                    }
-
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Divider(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.08),
+                  ),
+                  ...remaining.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final article = entry.value;
+                    final isRead = idx.isEven;
+                    final progress = (0.32 + (idx * 0.14)).clamp(0.18, 0.95);
                     return Padding(
                       padding: const EdgeInsets.only(top: 14),
-                      child: card,
+                      child: ArticleCard(
+                        article: article,
+                        isHero: false,
+                        isRead: isRead,
+                        progress: progress.toDouble(),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          '/article/${article.id}',
+                        ),
+                      ),
                     );
-                  },
-                ),
-              ArticlesFeedError(:final message) =>
-                Center(child: Text('Error: $message')),
-              _ => const SizedBox.shrink(),
-            };
+                  }),
+                ],
+              );
+            }
+            if (state is ArticlesFeedError) {
+              return Center(child: Text('Error: ${state.message}'));
+            }
+            return const SizedBox.shrink();
           },
         ),
         floatingActionButton: Container(
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color:
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.35),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.35),
                 blurRadius: 24,
                 spreadRadius: 2,
               ),
@@ -156,7 +178,9 @@ class _EditorialAppBar extends StatelessWidget implements PreferredSizeWidget {
             key: ValueKey(isDark),
             icon: Icon(
               isDark ? Icons.wb_sunny_rounded : Icons.nightlight_round,
-              color: isDark ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+              color: isDark
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface,
             ),
             onPressed: context.read<ThemeCubit>().toggleTheme,
             splashRadius: 22,
