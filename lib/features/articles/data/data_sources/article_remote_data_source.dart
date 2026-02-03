@@ -45,6 +45,7 @@ class ArticleRemoteDataSource {
             id: docRef.id,
             title: dto.title,
             content: dto.content,
+            summary: _summaryFrom(dto.content, dto.summary),
             author: dto.author,
             thumbnailUrl: dto.thumbnailUrl,
             tags: List<String>.from(dto.tags),
@@ -53,7 +54,21 @@ class ArticleRemoteDataSource {
             publishedAt: dto.publishedAt,
             updatedAt: dto.updatedAt,
           )
-        : dto;
+        : dto.summary.isEmpty
+            ? ArticleDto(
+                id: dto.id,
+                title: dto.title,
+                content: dto.content,
+                summary: _summaryFrom(dto.content, dto.summary),
+                author: dto.author,
+                thumbnailUrl: dto.thumbnailUrl,
+                tags: List<String>.from(dto.tags),
+                readingTimeMinutes: dto.readingTimeMinutes,
+                status: dto.status,
+                publishedAt: dto.publishedAt,
+                updatedAt: dto.updatedAt,
+              )
+            : dto;
 
     await docRef.set(_encodeForFirestore(toStore));
     final stored = await docRef.get();
@@ -68,6 +83,7 @@ class ArticleRemoteDataSource {
     final json = Map<String, dynamic>.from(data);
     json['publishedAt'] = _asDateTime(json['publishedAt'], 'publishedAt');
     json['updatedAt'] = _asDateTime(json['updatedAt'], 'updatedAt');
+    json['summary'] = (json['summary'] as String?) ?? '';
     return ArticleDto.fromRawData(doc.id, json);
   }
 
@@ -85,4 +101,17 @@ DateTime _asDateTime(Object? value, String fieldName) {
   if (value is Timestamp) return value.toDate().toUtc();
   if (value is DateTime) return value.toUtc();
   throw StateError('Invalid $fieldName value: $value');
+}
+
+String _summaryFrom(String content, String existing) {
+  if (existing.isNotEmpty) return existing;
+  final normalized = content.replaceAll(RegExp(r'\s+'), ' ').trim();
+  if (normalized.isEmpty) return '';
+  const minChars = 160;
+  const maxChars = 200;
+  if (normalized.length <= maxChars) return normalized;
+  final slice = normalized.substring(0, maxChars);
+  final lastSpace = slice.lastIndexOf(' ');
+  final safe = lastSpace >= minChars ? slice.substring(0, lastSpace) : slice;
+  return safe.trim();
 }

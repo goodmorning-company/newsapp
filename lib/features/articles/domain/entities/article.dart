@@ -6,6 +6,7 @@ class Article {
   final String id;
   final String title;
   final String body;
+  final String summary;
   final Author author;
   final String? coverImageUrl;
   final List<String> tags;
@@ -18,6 +19,7 @@ class Article {
     required this.id,
     required this.title,
     required this.body,
+    required this.summary,
     required this.author,
     this.coverImageUrl,
     this.tags = const [],
@@ -33,6 +35,7 @@ class Article {
     String? id,
     String? title,
     String? body,
+    String? summary,
     Author? author,
     String? coverImageUrl,
     List<String>? tags,
@@ -45,6 +48,7 @@ class Article {
       id: id ?? this.id,
       title: title ?? this.title,
       body: body ?? this.body,
+      summary: summary ?? this.summary,
       author: author ?? this.author,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       tags: tags ?? List<String>.from(this.tags),
@@ -76,6 +80,7 @@ class Article {
         id,
         title,
         body,
+        summary,
         author,
         coverImageUrl,
         Object.hashAll(tags),

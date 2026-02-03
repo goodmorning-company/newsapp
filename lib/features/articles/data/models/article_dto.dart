@@ -4,6 +4,7 @@ class ArticleDto {
   final String id;
   final String title;
   final String content;
+  final String summary;
   final AuthorDto author;
   final String? thumbnailUrl;
   final List<String> tags;
@@ -16,6 +17,7 @@ class ArticleDto {
     required this.id,
     required this.title,
     required this.content,
+    required this.summary,
     required this.author,
     this.thumbnailUrl,
     this.tags = const [],
@@ -30,6 +32,7 @@ class ArticleDto {
       id: id,
       title: json['title'] as String,
       content: json['content'] as String,
+      summary: json['summary'] as String? ?? '',
       author: AuthorDto.fromRawData(json['author'] as Map<String, dynamic>),
       thumbnailUrl: json['thumbnailUrl'] as String?,
       tags: (json['tags'] as List<dynamic>? ?? const [])
@@ -46,6 +49,7 @@ class ArticleDto {
     return {
       'title': title,
       'content': content,
+      'summary': summary,
       'author': author.toJson(),
       'thumbnailUrl': thumbnailUrl,
       'tags': List<String>.from(tags),

@@ -26,6 +26,8 @@ final List<Article> mockArticles = [
   Article(
     id: 'article-1',
     title: 'AI Is Reshaping the Future of Work',
+    summary:
+        'Copilots are shifting knowledge work from execution to supervision; judgment quality and explainability now define trust.',
     body: '''
 Knowledge work is shifting from **execution** to *supervision*, as copilots slide into every role from finance to field ops. The real delta isn’t output speed—it’s judgment quality.
 
@@ -57,6 +59,8 @@ The companies that win will pair model literacy with humane pacing—protecting 
   Article(
     id: 'article-2',
     title: 'Global Markets React to New Tech Policies',
+    summary:
+        'Coordinated EU/US guidance on cross-border data exports is reshaping contracts, timelines, and localization strategies.',
     body: '''
 Coordinated guidance on cross-border data exports from the EU and US has jolted cloud providers and fintechs that rely on frictionless flows.
 
@@ -84,6 +88,8 @@ Expect phased enforcement tied to certifications. Firms that pre-invest in regio
   Article(
     id: 'article-3',
     title: 'How Deep Focus Became a Competitive Advantage',
+    summary:
+        'Teams defending focus blocks and async rituals are shipping harder work with calmer cadence and measurable flow gains.',
     body: '''
 After a decade of alerts, teams are rediscovering *protected focus* as a differentiator. Output on complex projects tracks directly to uninterrupted hours.
 
@@ -111,6 +117,8 @@ Daily intent posts, shared silence windows, and recap threads create rhythm with
   Article(
     id: 'article-4',
     title: 'Energy Storage Breakthroughs Explained',
+    summary:
+        'LFP chemistry, safer supply chains, and containerized packs are accelerating grid-scale storage deployments.',
     body: '''
 Grid operators are leaning on **LFP chemistry** as prices fall and safety margins rise, redefining how quickly renewable projects can go live.
 
@@ -138,6 +146,8 @@ Pair utility-scale solar with 4–6 hour packs, pre-stage swap units, and negoti
   Article(
     id: 'article-5',
     title: 'Designing Trust in AI-Powered Products',
+    summary:
+        'Transparent UI patterns, explainability chips, and opt-outs are becoming the default trust contract for adaptive products.',
     body: '''
 Trust is now a product surface. Teams are shipping **transparency UIs**, inline explanations, and opt-outs to keep adaptive features welcome.
 
@@ -165,6 +175,8 @@ Start with explainable defaults, measure sentiment, then layer optional personal
   Article(
     id: 'article-6',
     title: 'The Quiet Comeback of Night Trains in Europe',
+    summary:
+        'Refurbished sleepers, bundled passes, and climate-first policies are turning night trains into durable infrastructure.',
     body: '''
 Night trains are back—not as nostalgia, but as a **climate-conscious alternative** to short-haul flights. Refurbished sleepers and bundled passes are lowering friction.
 
@@ -192,6 +204,8 @@ Expect new north–south corridors and dynamic pricing tuned to shoulder seasons
   Article(
     id: 'article-7',
     title: 'Why Local Newsrooms Are Turning to Memberships',
+    summary:
+        'Memberships with open budgets and member briefings are stabilizing local desks beyond ad swings.',
     body: '''
 Local desks are rebuilding resilience with **memberships**—trading ad volatility for predictable community backing.
 
@@ -219,6 +233,8 @@ Renewal rate, investigation cadence, and member referrals now sit on the same da
   Article(
     id: 'article-8',
     title: 'Developers Embrace On-Device AI for Privacy',
+    summary:
+        'Edge models keep personal data local, cutting latency while offering privacy-as-a-feature for everyday tools.',
     body: '''
 On-device models are moving beyond demos into everyday tooling—keeping **personal data local** while slashing latency.
 
@@ -246,6 +262,8 @@ Expect premium tiers that guarantee offline-by-default. Confidence rises when th
   Article(
     id: 'article-9',
     title: 'Cities Rethink Heat Resilience Ahead of Summer',
+    summary:
+        'Cities are funding shaded corridors, misting hubs, and cool roofs as frontline heat resilience infrastructure.',
     body: '''
 With another record summer looming, cities are prioritizing **shaded corridors** and rapid-deploy cooling to protect residents.
 
@@ -273,6 +291,8 @@ Blended finance—municipal bonds plus climate grants—is speeding procurement.
   Article(
     id: 'article-10',
     title: 'Quantum-Safe Encryption Trials Move to Production',
+    summary:
+        'Hybrid PQC pilots are moving to production as banks hedge against post-quantum risks with measurable insurance.',
     body: '''
 Banks and health networks are moving from labs to **production pilots** with hybrid key exchange, hedging against post-quantum risks.
 
