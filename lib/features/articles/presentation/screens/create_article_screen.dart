@@ -35,10 +35,10 @@ class CreateArticleScreen extends StatelessWidget {
       create: (_) => CreateArticleCubit(createArticle: const CreateArticle()),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Create Article'),
+          title: const Text('New Story'),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           child: BlocConsumer<CreateArticleCubit, CreateArticleState>(
             listener: (context, state) {
               if (state is CreateArticleSuccess) {
@@ -55,6 +55,8 @@ class CreateArticleScreen extends StatelessWidget {
             },
             builder: (context, state) {
               final isSubmitting = state is CreateArticleSubmitting;
+              final accent = Theme.of(context).colorScheme.primary;
+              final surface = Theme.of(context).cardColor;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -63,22 +65,37 @@ class CreateArticleScreen extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: 'Write your title here...',
                       filled: true,
-                      fillColor: Colors.grey[100],
+                      fillColor: surface,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 14,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.08),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.08),
+                        ),
                       ),
                       disabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.08),
+                        ),
                       ),
                     ),
                   ),
@@ -87,8 +104,8 @@ class CreateArticleScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple[100],
-                        foregroundColor: Colors.black87,
+                        backgroundColor: accent.withValues(alpha: 0.14),
+                        foregroundColor: Theme.of(context).colorScheme.onSurface,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 14,
@@ -110,19 +127,34 @@ class CreateArticleScreen extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: 'Add article here...',
                       filled: true,
-                      fillColor: Colors.grey[100],
+                      fillColor: surface,
                       contentPadding: const EdgeInsets.all(16),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.08),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.08),
+                        ),
                       ),
                       disabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.08),
+                        ),
                       ),
                     ),
                   ),
@@ -136,10 +168,10 @@ class CreateArticleScreen extends StatelessWidget {
                               context
                                   .read<CreateArticleCubit>()
                                   .submit(_mockArticle());
-                            },
+                          },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple[100],
-                        foregroundColor: Colors.black87,
+                        backgroundColor: accent,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           vertical: 16,
                         ),
