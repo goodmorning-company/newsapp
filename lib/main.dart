@@ -19,11 +19,27 @@ import 'features/articles/data/repository/article_repository_with_fallback.dart'
 import 'features/articles/data/repository/firebase_article_repository.dart';
 import 'features/articles/data/repository/mock_article_repository.dart';
 
+import 'features/editorial_ai/data/data_sources/editorial_ai_remote_data_source.dart';
+import 'features/editorial_ai/data/repository/editorial_ai_repository_with_fallback.dart';
+import 'features/editorial_ai/data/repository/mock_editorial_ai_repository.dart';
+import 'features/editorial_ai/data/repository/openai_editorial_ai_repository.dart';
+import 'features/editorial_ai/domain/use_cases/improve_draft_with_ai.dart';
+import 'features/editorial_ai/presentation/bloc/editorial_ai_cubit.dart';
+
+/// 🔐 MUST be const — evaluated at compile time
+const String editorialAiKey = String.fromEnvironment('EDITORIAL_AI_KEY');
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+
+  /// Fail fast in dev if the key is missing
+  assert(
+    editorialAiKey.isNotEmpty,
+    'EDITORIAL_AI_KEY is missing. Run flutter with --dart-define=EDITORIAL_AI_KEY=...',
   );
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const NewsApp());
 }
 
@@ -38,6 +54,7 @@ class NewsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // --- Articles repositories ---
     final firebaseArticleRepo = FirebaseArticleRepositoryImpl(
       ArticleRemoteDataSource(FirebaseFirestore.instance),
     );
@@ -47,10 +64,22 @@ class NewsApp extends StatelessWidget {
       fallback: mockArticleRepo,
     );
 
+    // --- Editorial AI repositories ---
+    final editorialAiRemote = EditorialAiRemoteDataSource(
+      apiKey: editorialAiKey,
+    );
+    final editorialAiPrimary = OpenAiEditorialAiRepository(
+      remote: editorialAiRemote,
+    );
+    final editorialAiFallback = MockEditorialAiRepository();
+    final editorialAiRepository = EditorialAiRepositoryWithFallback(
+      primary: editorialAiPrimary,
+      fallback: editorialAiFallback,
+    );
+    final improveDraftWithAi = ImproveDraftWithAi(editorialAiRepository);
+
     return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider.value(value: articleRepository),
-      ],
+      providers: [RepositoryProvider.value(value: articleRepository)],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (_) => ThemeCubit()),
@@ -63,6 +92,7 @@ class NewsApp extends StatelessWidget {
               createArticle: CreateArticle(articleRepository),
             ),
           ),
+          BlocProvider(create: (_) => EditorialAiCubit(improveDraftWithAi)),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (_, themeState) => MaterialApp(
@@ -82,9 +112,9 @@ class NewsApp extends StatelessWidget {
                 final id = uri.pathSegments[1];
                 return MaterialPageRoute(
                   builder: (context) => BlocProvider(
-                    create: (_) => ArticleDetailCubit(
-                      GetArticleById(articleRepository),
-                    )..load(id),
+                    create: (_) =>
+                        ArticleDetailCubit(GetArticleById(articleRepository))
+                          ..load(id),
                     child: ArticleDetailScreen(articleId: id),
                   ),
                 );
@@ -103,87 +133,28 @@ class NewsApp extends StatelessWidget {
       colorScheme: scheme,
       useMaterial3: true,
       fontFamily: 'Inter',
-      fontFamilyFallback: const [
-        'SF Pro Display',
-        'SF Pro Text',
-        'Geist',
-        'Segoe UI',
-        'Roboto',
-      ],
       scaffoldBackgroundColor: background,
       appBarTheme: AppBarTheme(
         backgroundColor: background,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        centerTitle: false,
         titleTextStyle: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w800,
           color: scheme.onSurface,
-          letterSpacing: -0.2,
         ),
       ),
       cardTheme: CardThemeData(
         color: surface,
         elevation: 3,
-        margin: EdgeInsets.zero,
-        shadowColor: Colors.black.withValues(alpha: 0.35),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.04)),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: _accent,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        elevation: 10,
-        splashColor: Colors.white.withValues(alpha: 0.14),
-        focusColor: _accent.withValues(alpha: 0.16),
-      ),
-      chipTheme: ChipThemeData(
-        backgroundColor: _accent.withValues(alpha: 0.12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        labelStyle: textTheme.labelSmall?.copyWith(
-          color: scheme.onSurface,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.2,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      ),
-      textTheme: textTheme.copyWith(
-        headlineMedium: textTheme.headlineMedium?.copyWith(
-          fontWeight: FontWeight.w800,
-          letterSpacing: -0.8,
-          color: scheme.onSurface,
-        ),
-        titleLarge: textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.4,
-          color: scheme.onSurface,
-        ),
-        titleMedium: textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
-          color: scheme.onSurface,
-        ),
-        bodyLarge: textTheme.bodyLarge?.copyWith(height: 1.5),
-        bodyMedium: textTheme.bodyMedium?.copyWith(height: 1.5),
-        bodySmall: textTheme.bodySmall?.copyWith(height: 1.35),
-        labelSmall: textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.3,
-        ),
-      ),
-      dividerColor: Colors.white.withValues(alpha: 0.06),
-      visualDensity: VisualDensity.standard,
+      textTheme: textTheme,
     );
   }
 
   ThemeData _buildDarkTheme() {
-    final scheme = const ColorScheme.dark(
+    const scheme = ColorScheme.dark(
       primary: _accent,
-      secondary: _accent,
-      surfaceTint: Colors.transparent,
       surface: _darkSurface,
       onSurface: Color(0xFFE8EAF0),
     );
@@ -191,10 +162,8 @@ class NewsApp extends StatelessWidget {
   }
 
   ThemeData _buildLightTheme() {
-    final scheme = const ColorScheme.light(
+    const scheme = ColorScheme.light(
       primary: _accent,
-      secondary: _accent,
-      surfaceTint: Colors.transparent,
       surface: _lightSurface,
       onSurface: Color(0xFF1A1D23),
     );
