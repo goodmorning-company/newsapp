@@ -1,0 +1,21 @@
+// storage.rules
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isEditor() {
+      return request.auth != null && request.auth.token.editor == true;
+    }
+
+    match /media/articles/{articleId}/{filename} {
+      allow read: if true; // public article media
+      allow write: if isEditor()
+        && request.resource.size < 5 * 1024 * 1024 // <5MB thumbnails
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
