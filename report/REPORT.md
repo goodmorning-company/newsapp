@@ -73,7 +73,7 @@ The home feed acts as a **digital magazine cover**, prioritizing visual hierarch
 Articles refresh automatically after publishing, reflecting real-time data from Firebase.
 
 <p align="center">
-  <img src="./screenshots/home_screen.png" width="250" alt="Home Feed"/>
+  <img src="./screenshots/home_screen.png" width="325" alt="Home Feed"/>
 </p>
 
 ---
@@ -83,7 +83,7 @@ Articles refresh automatically after publishing, reflecting real-time data from 
 Articles are designed for immersive reading. Typography, spacing, and contrast were carefully tuned to support long-form content while maintaining a modern editorial aesthetic.
 
 <p align="center">
-  <img src="./screenshots/read_article.png" width="250" alt="Article Reading Experience"/>
+  <img src="./screenshots/read_article.png" width="325" alt="Article Reading Experience"/>
 </p>
 
 ---
@@ -94,7 +94,7 @@ The app fully supports Markdown rendering, preserving semantic structure such as
 This allows writers to focus on storytelling while the system ensures consistent presentation.
 
 <p align="center">
-  <img src="./screenshots/markdown.png" width="250" alt="Markdown Rendering"/>
+  <img src="./screenshots/markdown.png" width="325" alt="Markdown Rendering"/>
 </p>
 
 ---
@@ -104,9 +104,9 @@ This allows writers to focus on storytelling while the system ensures consistent
 The platform supports both traditional articles and AI-enhanced drafts, enabling flexible editorial workflows and experimentation.
 
 <p align="center">
-  <img src="./screenshots/normalformat.png" width="250" alt="Standard Article Format"/>
+  <img src="./screenshots/normalformat.png" width="325" alt="Standard Article Format"/>
   &nbsp;&nbsp;
-  <img src="./screenshots/iaformat.png" width="250" alt="AI Enhanced Article Format"/>
+  <img src="./screenshots/iaformat.png" width="325" alt="AI Enhanced Article Format"/>
 </p>
 
 ---
@@ -116,7 +116,7 @@ The platform supports both traditional articles and AI-enhanced drafts, enabling
 Light mode is fully supported to ensure accessibility and comfort in different environments, while preserving visual identity and contrast.
 
 <p align="center">
-  <img src="./screenshots/lightmode.png" width="250" alt="Light Mode"/>
+  <img src="./screenshots/lightmode.png" width="325" alt="Light Mode"/>
 </p>
 
 ---
@@ -126,7 +126,7 @@ Light mode is fully supported to ensure accessibility and comfort in different e
 A clean, minimal splash screen establishes the app’s editorial tone immediately, reinforcing a premium product feel from launch.
 
 <p align="center">
-  <img src="./screenshots/splash_screen.png" width="250" alt="Splash Screen"/>
+  <img src="./screenshots/splash_screen.png" width="325" alt="Splash Screen"/>
 </p>
 
 ---
