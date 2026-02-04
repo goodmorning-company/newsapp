@@ -61,27 +61,29 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
               builder: (context, state) {
                 return switch (state) {
                   ArticleDetailLoading() => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ArticleDetailLoaded(:final article) =>
-                    _buildArticleView(context, article, isPreview: false),
+                    child: CircularProgressIndicator(),
+                  ),
+                  ArticleDetailLoaded(:final article) => _buildArticleView(
+                    context,
+                    article,
+                    isPreview: false,
+                  ),
                   ArticleDetailError(:final message) => Center(
-                      child: Text('Error: $message'),
-                    ),
+                    child: Text('Error: $message'),
+                  ),
                   ArticleDetailNotFound() => const Center(
-                      child: Text('Article not found'),
-                    ),
+                    child: Text('Article not found'),
+                  ),
                   _ => const SizedBox.shrink(),
                 };
               },
             ),
-      bottomNavigationBar:
-          widget.isPreview
-              ? BlocBuilder<EditorialAiCubit, EditorialAiState>(
-                  builder: (context, aiState) =>
-                      _buildPreviewActions(context, aiState),
-                )
-              : null,
+      bottomNavigationBar: widget.isPreview
+          ? BlocBuilder<EditorialAiCubit, EditorialAiState>(
+              builder: (context, aiState) =>
+                  _buildPreviewActions(context, aiState),
+            )
+          : null,
     );
 
     if (!widget.isPreview) {
@@ -96,9 +98,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
           setState(() {
             _isPublishing = false;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       child: BlocListener<EditorialAiCubit, EditorialAiState>(
@@ -223,9 +225,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         children: [
                           Text(
                             article.author.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -256,12 +256,14 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         ),
                       ),
                       child: Text(
-                        (article.tags.isNotEmpty ? article.tags.first : 'Feature')
+                        (article.tags.isNotEmpty
+                                ? article.tags.first
+                                : 'Feature')
                             .toUpperCase(),
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                            ),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ],
@@ -274,9 +276,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
         Text(
           article.title,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.6,
-              ),
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.6,
+          ),
         ),
         const SizedBox(height: 12),
         Divider(
@@ -315,8 +317,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
 
   Widget _buildCoverImage(Article article, {required bool isPreview}) {
     final coverUrl = article.coverImageUrl;
-    final fallback =
-        'https://picsum.photos/seed/detail-fallback/900/600';
+    final fallback = 'https://picsum.photos/seed/detail-fallback/900/600';
     if (isPreview &&
         coverUrl != null &&
         coverUrl.isNotEmpty &&
@@ -349,10 +350,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     return uri.isScheme('http') || uri.isScheme('https');
   }
 
-  Widget _buildPreviewActions(
-    BuildContext context,
-    EditorialAiState aiState,
-  ) {
+  Widget _buildPreviewActions(BuildContext context, EditorialAiState aiState) {
     final article = _previewDraft ?? widget.previewArticle;
     if (article == null) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.primary;
@@ -376,9 +374,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
             ),
           ],
           border: Border(
-            top: BorderSide(
-              color: onSurface.withValues(alpha: 0.08),
-            ),
+            top: BorderSide(color: onSurface.withValues(alpha: 0.08)),
           ),
         ),
         child: Row(
@@ -446,7 +442,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
 
   int _estimateReadingTime(String text) {
     final words = text.trim().split(RegExp(r'\s+')).length;
-    return (words / 200).clamp(1, 15).ceil();
+    return (words / 20).clamp(1, 15).ceil();
   }
 
   String _buildSummary(String text) {
@@ -484,16 +480,14 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     final textTheme = theme.textTheme;
     final onSurface = theme.colorScheme.onSurface;
     final accent = theme.colorScheme.primary;
-    final quoteBg =
-        theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final quoteBg = theme.colorScheme.surfaceContainerHighest.withValues(
+      alpha: 0.3,
+    );
     final quoteBorder = accent.withValues(alpha: 0.35);
 
     return MarkdownStyleSheet.fromTheme(theme).copyWith(
       blockSpacing: 18,
-      p: textTheme.bodyLarge?.copyWith(
-        height: 1.7,
-        color: onSurface,
-      ),
+      p: textTheme.bodyLarge?.copyWith(height: 1.7, color: onSurface),
       pPadding: const EdgeInsets.only(bottom: 14),
       h2: textTheme.titleLarge?.copyWith(
         fontWeight: FontWeight.w800,

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,84 +26,93 @@ class ArticlesFeedScreen extends StatelessWidget {
             final topStories = articles.take(topCount).toList();
             final remaining = articles.skip(topCount).toList();
 
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-              children: [
-                const SizedBox(height: 6),
-                Text(
-                  'Today',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            return RefreshIndicator(
+              onRefresh: () {
+                log('[feed.refresh] Triggered', name: 'feed.refresh');
+                return context.read<ArticlesFeedCubit>().load(
+                  forceRefresh: true,
+                );
+              },
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+                children: [
+                  const SizedBox(height: 6),
+                  Text(
+                    'Today',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Top Stories',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.6,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    height: 360,
+                    child: PageView.builder(
+                      controller: PageController(viewportFraction: 0.9),
+                      padEnds: false,
+                      itemCount: topStories.length,
+                      itemBuilder: (context, index) {
+                        final article = topStories[index];
+                        final progress = (0.22 + index * 0.12).clamp(
+                          0.18,
+                          0.95,
+                        );
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            right: index == topStories.length - 1 ? 0 : 14,
+                          ),
+                          child: ArticleCard(
+                            article: article,
+                            isHero: true,
+                            isRead: false,
+                            progress: progress.toDouble(),
+                            onTap: () => Navigator.pushNamed(
+                              context,
+                              '/article/${article.id}',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Divider(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                    letterSpacing: 0.4,
+                    ).colorScheme.onSurface.withValues(alpha: 0.08),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Top Stories',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.6,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                SizedBox(
-                  height: 360,
-                  child: PageView.builder(
-                    controller: PageController(viewportFraction: 0.9),
-                    padEnds: false,
-                    itemCount: topStories.length,
-                    itemBuilder: (context, index) {
-                      final article = topStories[index];
-                      final progress = (0.22 + index * 0.12).clamp(
-                        0.18,
-                        0.95,
-                      );
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          right: index == topStories.length - 1 ? 0 : 14,
+                  ...remaining.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final article = entry.value;
+                    final isRead = idx.isEven;
+                    final progress = (0.32 + (idx * 0.14)).clamp(0.18, 0.95);
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 14),
+                      child: ArticleCard(
+                        article: article,
+                        isHero: false,
+                        isRead: isRead,
+                        progress: progress.toDouble(),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          '/article/${article.id}',
                         ),
-                        child: ArticleCard(
-                          article: article,
-                          isHero: true,
-                          isRead: false,
-                          progress: progress.toDouble(),
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            '/article/${article.id}',
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Divider(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.08),
-                ),
-                ...remaining.asMap().entries.map((entry) {
-                  final idx = entry.key;
-                  final article = entry.value;
-                  final isRead = idx.isEven;
-                  final progress = (0.32 + (idx * 0.14)).clamp(0.18, 0.95);
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 14),
-                    child: ArticleCard(
-                      article: article,
-                      isHero: false,
-                      isRead: isRead,
-                      progress: progress.toDouble(),
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        '/article/${article.id}',
                       ),
-                    ),
-                  );
-                }),
-              ],
+                    );
+                  }),
+                ],
+              ),
             );
           }
           if (state is ArticlesFeedError) {

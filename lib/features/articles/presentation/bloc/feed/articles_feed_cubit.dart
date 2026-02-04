@@ -9,7 +9,7 @@ class ArticlesFeedCubit extends Cubit<ArticlesFeedState> {
   ArticlesFeedCubit(this._getArticles)
       : super(const ArticlesFeedInitial());
 
-  Future<void> load({int? limit}) async {
+  Future<void> load({int? limit, bool forceRefresh = false}) async {
     emit(const ArticlesFeedLoading());
     try {
       final articles = await _getArticles(limit: limit);

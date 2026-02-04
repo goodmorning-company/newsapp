@@ -11,6 +11,7 @@ import '../../domain/entities/author.dart';
 
 import '../bloc/create/create_article_cubit.dart';
 import '../bloc/create/create_article_state.dart';
+import '../bloc/feed/articles_feed_cubit.dart';
 import '../models/article_draft_payload.dart';
 import 'article_detail_screen.dart';
 
@@ -172,6 +173,8 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
                 );
               }
               if (state is CreateArticleSuccess) {
+                log('[feed.refresh] Triggered', name: 'feed.refresh');
+                context.read<ArticlesFeedCubit>().load(forceRefresh: true);
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(const SnackBar(content: Text('Article created')));
