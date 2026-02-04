@@ -73,7 +73,7 @@ The home feed acts as a **digital magazine cover**, prioritizing visual hierarch
 Articles refresh automatically after publishing, reflecting real-time data from Firebase.
 
 <p align="center">
-  <img src="./screenshots/home_screen.png" width="150" alt="Home Feed"/>
+  <img src="./screenshots/home_screen.png" width="250" alt="Home Feed"/>
 </p>
 
 ---
@@ -83,7 +83,7 @@ Articles refresh automatically after publishing, reflecting real-time data from 
 Articles are designed for immersive reading. Typography, spacing, and contrast were carefully tuned to support long-form content while maintaining a modern editorial aesthetic.
 
 <p align="center">
-  <img src="./screenshots/read_article.png" width="150" alt="Article Reading Experience"/>
+  <img src="./screenshots/read_article.png" width="250" alt="Article Reading Experience"/>
 </p>
 
 ---
@@ -94,7 +94,7 @@ The app fully supports Markdown rendering, preserving semantic structure such as
 This allows writers to focus on storytelling while the system ensures consistent presentation.
 
 <p align="center">
-  <img src="./screenshots/markdown.png" width="150" alt="Markdown Rendering"/>
+  <img src="./screenshots/markdown.png" width="250" alt="Markdown Rendering"/>
 </p>
 
 ---
@@ -104,9 +104,9 @@ This allows writers to focus on storytelling while the system ensures consistent
 The platform supports both traditional articles and AI-enhanced drafts, enabling flexible editorial workflows and experimentation.
 
 <p align="center">
-  <img src="./screenshots/normalformat.png" width="150" alt="Standard Article Format"/>
+  <img src="./screenshots/normalformat.png" width="250" alt="Standard Article Format"/>
   &nbsp;&nbsp;
-  <img src="./screenshots/iaformat.png" width="150" alt="AI Enhanced Article Format"/>
+  <img src="./screenshots/iaformat.png" width="250" alt="AI Enhanced Article Format"/>
 </p>
 
 ---
@@ -116,7 +116,7 @@ The platform supports both traditional articles and AI-enhanced drafts, enabling
 Light mode is fully supported to ensure accessibility and comfort in different environments, while preserving visual identity and contrast.
 
 <p align="center">
-  <img src="./screenshots/lightmode.png" width="150" alt="Light Mode"/>
+  <img src="./screenshots/lightmode.png" width="250" alt="Light Mode"/>
 </p>
 
 ---
@@ -126,7 +126,7 @@ Light mode is fully supported to ensure accessibility and comfort in different e
 A clean, minimal splash screen establishes the app’s editorial tone immediately, reinforcing a premium product feel from launch.
 
 <p align="center">
-  <img src="./screenshots/splash_screen.png" width="150" alt="Splash Screen"/>
+  <img src="./screenshots/splash_screen.png" width="250" alt="Splash Screen"/>
 </p>
 
 ---
@@ -138,19 +138,20 @@ This project intentionally goes beyond the initial requirements by prioritizing 
 
 ### ✨ New Features Implemented
 
-**AI-Assisted Journalism Experience**  
+🧠 **AI-Assisted Journalism Experience**  
 An **Assistive AI for Journalists** feature was implemented to help writers improve drafts while preserving their original intent and voice. The AI focuses on clarity, structure, and editorial quality, positioning itself as a creative assistant rather than a content generator.
 
-**High-Impact Editorial UI/UX**  
+🎨 **High-Impact Editorial UI/UX**  
 The application was designed with a strong editorial identity, emphasizing typography, spacing, and visual hierarchy. The reading experience was crafted to feel calm, focused, and premium—similar to modern digital journals and high-end news platforms.
 
-**Dark / Light Mode with Visual Consistency**  
+🌗 **Dark / Light Mode with Visual Consistency**  
 Full support for dark and light modes was added, carefully tuned to maintain readability, contrast, and editorial tone across themes without sacrificing visual identity.
 
-**Markdown-Based Article Rendering**  
+📝 **Markdown-Based Article Rendering**  
 Articles support rich Markdown formatting, enabling expressive long-form content such as headings, quotes, lists, and emphasis. This allows journalists to write naturally while maintaining consistent visual presentation.
 
 ---
+
 
 ### 🧩 Prototypes Created
 
