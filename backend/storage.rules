@@ -2,18 +2,26 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // ========= Helpers =========
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
     function isEditor() {
       return request.auth != null && request.auth.token.editor == true;
     }
 
+    // ========= Article media =========
     match /media/articles/{articleId}/{filename} {
       allow read: if true; // public article media
-      allow write: if isEditor()
-        && request.resource.size < 5 * 1024 * 1024 // <5MB thumbnails
+
+      allow write: if isAuthenticated()
+        && request.resource.size < 5 * 1024 * 1024 // < 5MB
         && request.resource.contentType.matches('image/.*');
     }
 
-    // Deny all other paths
+    // ========= Default deny =========
     match /{allPaths=**} {
       allow read, write: if false;
     }

@@ -2,16 +2,27 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ========= Helpers =========
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
     function isEditor() {
       return request.auth != null && request.auth.token.editor == true;
     }
 
     function isNonEmptyString(value, min, max) {
-      return value is string && value.size() >= min && value.size() <= max;
+      return value is string
+        && value.size() >= min
+        && value.size() <= max;
     }
 
     function isOptionalString(value, min, max) {
-      return value == null || (value is string && value.size() >= min && value.size() <= max);
+      return value == null
+        || (value is string
+            && value.size() >= min
+            && value.size() <= max);
     }
 
     function validAuthor(author) {
@@ -23,8 +34,7 @@ service cloud.firestore {
     }
 
     function validTags(tags) {
-      return tags is list
-        && tags.size() <= 10;
+      return tags is list && tags.size() <= 10;
     }
 
     function validArticle(data) {
@@ -36,19 +46,22 @@ service cloud.firestore {
         && data.updatedAt is timestamp
         && validAuthor(data.author)
         && validTags(data.tags)
-        && (data.coverImageUrl == null || isNonEmptyString(data.coverImageUrl, 1, 500))
+        && (data.coverImageUrl == null
+            || isNonEmptyString(data.coverImageUrl, 1, 500))
         && data.readingTimeMinutes is int
         && data.readingTimeMinutes >= 1
         && data.readingTimeMinutes <= 60;
     }
 
+    // ========= Articles =========
     match /articles/{articleId} {
-      allow read: if true; // public reads allowed
-      allow create, update: if isEditor() && validArticle(request.resource.data);
-      allow delete: if false; // disallow deletes by default
+      allow read: if true; // public reads
+      allow create, update: if isAuthenticated()
+        && validArticle(request.resource.data);
+      allow delete: if false;
     }
 
-    // Deny everything else by default
+    // ========= Default deny =========
     match /{document=**} {
       allow read, write: if false;
     }

@@ -25,6 +25,7 @@ import 'features/editorial_ai/data/repository/mock_editorial_ai_repository.dart'
 import 'features/editorial_ai/data/repository/openai_editorial_ai_repository.dart';
 import 'features/editorial_ai/domain/use_cases/improve_draft_with_ai.dart';
 import 'features/editorial_ai/presentation/bloc/editorial_ai_cubit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// 🔐 MUST be const — evaluated at compile time
 const String editorialAiKey = String.fromEnvironment('EDITORIAL_AI_KEY');
@@ -39,6 +40,7 @@ Future<void> main() async {
   );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAuth.instance.signInAnonymously();
 
   runApp(const NewsApp());
 }
