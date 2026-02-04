@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'author_dto.dart';
 
 class ArticleDto {
@@ -27,21 +29,54 @@ class ArticleDto {
     required this.updatedAt,
   });
 
+  String? get coverImageUrl => thumbnailUrl;
+
   factory ArticleDto.fromRawData(String id, Map<String, dynamic> json) {
+    dev.log(
+      '[[feed.firebase.raw]] [DOC]\n[id]=$id\n[keys]=${json.keys.toList()}',
+      name: 'feed.firestore',
+    );
+    dev.log(
+      '[[feed.firebase.raw]] [FIELDS]\n'
+      '[title]=${json['title']}\n'
+      '[summary]=${json['summary']}\n'
+      '[body]=${json['body']}\n'
+      '[status]=${json['status']}\n'
+      '[thumbnailUrl]=${json['thumbnailUrl']}\n'
+      '[coverImageUrl]=${json['coverImageUrl']}\n'
+      '[author]=${json['author']}\n'
+      '[tags]=${json['tags']}\n'
+      '[publishedAt]=${json['publishedAt']}\n'
+      '[updatedAt]=${json['updatedAt']}',
+      name: 'feed.firestore',
+    );
+    final coverImageUrl = json['coverImageUrl'] as String?;
+    final thumbnailUrl = json['thumbnailUrl'] as String?;
+    final rawAuthor = json['author'];
+    final authorData = rawAuthor is Map<String, dynamic>
+        ? rawAuthor
+        : <String, dynamic>{};
+    final publishedAt = json['publishedAt'];
+    final updatedAt = json['updatedAt'];
     return ArticleDto(
       id: id,
-      title: json['title'] as String,
-      content: json['content'] as String,
+      title: (json['title'] as String?) ?? '',
+      content: (json['content'] as String?) ?? (json['body'] as String?) ?? '',
       summary: json['summary'] as String? ?? '',
-      author: AuthorDto.fromRawData(json['author'] as Map<String, dynamic>),
-      thumbnailUrl: json['thumbnailUrl'] as String?,
+      author: AuthorDto.fromRawData({
+        'id': (authorData['id'] as String?) ?? '',
+        'name': (authorData['name'] as String?) ?? '',
+        'bio': authorData['bio'] as String?,
+        'avatarUrl': authorData['avatarUrl'] as String?,
+      }),
+      thumbnailUrl: coverImageUrl ?? thumbnailUrl,
       tags: (json['tags'] as List<dynamic>? ?? const [])
-          .map((e) => e as String)
+          .whereType<String>()
           .toList(),
-      readingTimeMinutes: (json['readingTimeMinutes'] as num).toInt(),
-      status: (json['status'] as String).toLowerCase(),
-      publishedAt: json['publishedAt'] as DateTime,
-      updatedAt: json['updatedAt'] as DateTime,
+      readingTimeMinutes: (json['readingTimeMinutes'] as num?)?.toInt() ?? 1,
+      status: ((json['status'] as String?) ?? 'draft').toLowerCase(),
+      publishedAt: publishedAt is DateTime ? publishedAt : DateTime.now().toUtc(),
+      updatedAt: updatedAt is DateTime ? updatedAt : DateTime.now().toUtc(),
     );
   }
 

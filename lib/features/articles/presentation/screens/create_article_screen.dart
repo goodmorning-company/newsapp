@@ -29,6 +29,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
 
   String? _selectedSection;
   XFile? _selectedImage;
+  ArticleDraftPayload? _lastDraftPayload;
   static const int _titleMin = 10;
   static const int _titleMax = 140;
   static const int _bodyMin = 200;
@@ -123,6 +124,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
       localImagePath: _selectedImage?.path,
       selectedSection: _selectedSection,
     );
+    _lastDraftPayload = payload;
 
     final result = await Navigator.push<ArticleDraftPayload>(
       context,
@@ -163,6 +165,12 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: BlocConsumer<CreateArticleCubit, CreateArticleState>(
             listener: (context, state) {
+              if (state is CreateArticleSubmitting) {
+                log(
+                  'Publish flow start | articleId=${_lastDraftPayload?.draftArticle.id} coverImageUrl=${_lastDraftPayload?.draftArticle.coverImageUrl} localImagePath=${_lastDraftPayload?.localImagePath}',
+                  name: 'publish.ui',
+                );
+              }
               if (state is CreateArticleSuccess) {
                 ScaffoldMessenger.of(
                   context,
@@ -467,7 +475,13 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
                                 child: ElevatedButton(
                                   onPressed: !_isValid || isSubmitting
                                       ? null
-                                      : _continueToPreview,
+                                      : () {
+                                          log(
+                                            'Preview open | titleLen=${_titleController.text.trim().length} bodyLen=${_bodyController.text.trim().length} section=$_selectedSection imagePath=${_selectedImage?.path}',
+                                            name: 'publish.ui',
+                                          );
+                                          _continueToPreview();
+                                        },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _isValid ? accent : surface,
                                     foregroundColor: _isValid

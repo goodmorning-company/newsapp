@@ -1,6 +1,8 @@
+import 'dart:developer' as dev;
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/article.dart';
 import '../../domain/entities/author.dart';
@@ -36,54 +38,128 @@ class FirebaseArticleRepositoryImpl implements ArticleRepository {
 
   @override
   Future<void> createArticle(Article article) async {
-    // Ensure we have an id before upload/write.
+    const collectionPath = 'articles';
     final articleId = article.id.isEmpty
-        ? FirebaseFirestore.instance.collection('articles').doc().id
+        ? FirebaseFirestore.instance.collection(collectionPath).doc().id
         : article.id;
-    final coverBytes = _placeholderImageBytes();
 
     try {
-      debugPrint('Firebase CREATE start → $articleId');
+      dev.log('Firebase CREATE start → $articleId', name: 'publish.firestore');
 
-      // Upload cover image first
+      // 1. Upload real cover image
+      final imagePath = article.coverImageUrl;
+      if (imagePath == null || imagePath.isEmpty) {
+        throw StateError('Missing cover image path');
+      }
+
+      final coverBytes = await File(imagePath).readAsBytes();
       final ref = _storage.ref().child('media/articles/$articleId/cover.jpg');
+
       await ref.putData(
         coverBytes,
         SettableMetadata(contentType: 'image/jpeg'),
       );
+
       final coverUrl = await ref.getDownloadURL();
 
-      final dto = _mapToDto(
-        article.copyWith(
-          id: articleId,
-          coverImageUrl: coverUrl,
-          summary: article.summary.isNotEmpty
-              ? article.summary
-              : _generateSummary(article.body),
-        ),
+      // 2. Normalize required fields for Firestore rules
+      final now = DateTime.now().toUtc();
+
+      final articleForWrite = article.copyWith(
+        id: articleId,
+        coverImageUrl: coverUrl,
+        summary: article.summary.isNotEmpty
+            ? article.summary
+            : _generateSummary(article.body),
+        updatedAt: now,
+        readingTimeMinutes: article.readingTimeMinutes > 0
+            ? article.readingTimeMinutes
+            : _estimateReadingTime(article.body),
+      );
+      final publishedAtTimestamp = Timestamp.fromDate(
+        articleForWrite.publishedAt.toUtc(),
+      );
+      final updatedAtTimestamp = Timestamp.fromDate(
+        articleForWrite.updatedAt.toUtc(),
       );
 
-      await _remote.createArticle(dto);
-      debugPrint('Firebase CREATE OK → $articleId');
+      dev.log(
+        'Firestore data check | coverImageUrl=${articleForWrite.coverImageUrl} '
+        'bodyLen=${articleForWrite.body.length} '
+        'summaryLen=${articleForWrite.summary.length} '
+        'readingTimeMinutes=${articleForWrite.readingTimeMinutes}',
+        name: 'publish.firestore',
+      );
+
+      final dto = _mapToDto(articleForWrite);
+
+      dev.log('[ABOUT_TO_SEND]', name: '[publish.payload]');
+
+      dev.log('''
+      [id]=${articleForWrite.id}
+      [title]=${articleForWrite.title}
+      [summaryLen]=${articleForWrite.summary.length}
+      [bodyLen]=${articleForWrite.body.length}
+      [author.id]=${articleForWrite.author.id}
+      [author.name]=${articleForWrite.author.name}
+      [coverImageUrl]=${articleForWrite.coverImageUrl}
+      [tags]=${articleForWrite.tags}
+      [readingTimeMinutes]=${articleForWrite.readingTimeMinutes}
+      [status]=${articleForWrite.status}
+      [publishedAt]=$publishedAtTimestamp
+      [updatedAt]=$updatedAtTimestamp
+      ''', name: '[publish.payload]');
+
+      final payload = <String, dynamic>{
+        'title': dto.title,
+        'summary': dto.summary,
+        'body': articleForWrite.body,
+        'author': dto.author.toJson(),
+        'tags': List<String>.from(dto.tags),
+        'coverImageUrl': articleForWrite.coverImageUrl,
+        'readingTimeMinutes': dto.readingTimeMinutes,
+        'status': dto.status,
+        'publishedAt': publishedAtTimestamp,
+        'updatedAt': updatedAtTimestamp,
+      };
+
+      // 3. Write document
+      await FirebaseFirestore.instance
+          .collection(collectionPath)
+          .doc(articleId)
+          .set(payload);
+
+      dev.log(
+        'Firestore write success | docId=$articleId',
+        name: 'publish.firestore',
+      );
     } catch (error, stack) {
-      debugPrint('Firebase CREATE ERROR → fallback to mock : $error');
-      debugPrintStack(stackTrace: stack);
-      // Fallback to mock repository behavior by throwing so upper layer can delegate.
+      dev.log(
+        'Firestore write error | $error',
+        name: 'publish.firestore',
+        error: error,
+        stackTrace: stack,
+      );
       rethrow;
     }
   }
+
+  // ----------------------------
+  // Mapping
+  // ----------------------------
 
   Article _mapToDomain(ArticleDto dto) {
     final status = dto.status.toLowerCase() == 'published'
         ? ArticleStatus.published
         : ArticleStatus.draft;
+
     return Article(
       id: dto.id,
       title: dto.title,
       body: dto.content,
       summary: dto.summary,
       author: _mapAuthorToDomain(dto.author),
-      coverImageUrl: dto.thumbnailUrl,
+      coverImageUrl: dto.thumbnailUrl ?? dto.coverImageUrl,
       tags: dto.tags,
       readingTimeMinutes: dto.readingTimeMinutes,
       status: status,
@@ -126,6 +202,10 @@ class FirebaseArticleRepositoryImpl implements ArticleRepository {
     );
   }
 
+  // ----------------------------
+  // Helpers
+  // ----------------------------
+
   String _generateSummary(String body) {
     final normalized = body.replaceAll(RegExp(r'\s+'), ' ').trim();
     if (normalized.isEmpty) return '';
@@ -138,8 +218,8 @@ class FirebaseArticleRepositoryImpl implements ArticleRepository {
     return safe.trim();
   }
 
-  Uint8List _placeholderImageBytes() {
-    // Minimal valid JPEG header bytes to satisfy Storage rules.
-    return Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xD9]);
+  int _estimateReadingTime(String text) {
+    final words = text.trim().split(RegExp(r'\s+')).length;
+    return (words / 200).clamp(1, 60).ceil();
   }
 }

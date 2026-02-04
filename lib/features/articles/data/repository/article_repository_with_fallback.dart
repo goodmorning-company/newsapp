@@ -51,15 +51,19 @@ class ArticleRepositoryWithFallback implements ArticleRepository {
 
   @override
   Future<void> createArticle(Article article) async {
+    dev.log('Trying Firebase repository', name: 'publish.repo');
     try {
-      dev.log('Firebase → createArticle(${article.id})', name: 'ArticleRepo');
+      dev.log('Firebase create start', name: 'publish.repo');
       await primary.createArticle(article);
-      dev.log('Firebase createArticle OK (${article.id})', name: 'ArticleRepo');
-    } catch (error, stack) {
-      dev.log('Firebase ERROR createArticle -> $error',
-          name: 'ArticleRepo', error: error, stackTrace: stack);
+      dev.log('Firebase create success', name: 'publish.repo');
+    } catch (error) {
+      dev.log(
+        'Firebase create error -> $error',
+        name: 'publish.repo',
+      );
+      dev.log('Falling back to Mock repository', name: 'publish.repo');
       await fallback.createArticle(article);
-      dev.log('MOCK createArticle (${article.id})', name: 'ArticleRepo');
+      dev.log('Mock create success', name: 'publish.repo');
     }
   }
 }

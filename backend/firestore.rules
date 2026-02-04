@@ -1,15 +1,9 @@
-// firestore.rules
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ========= Helpers =========
-    function isAuthenticated() {
+    function isSignedIn() {
       return request.auth != null;
-    }
-
-    function isEditor() {
-      return request.auth != null && request.auth.token.editor == true;
     }
 
     function isNonEmptyString(value, min, max) {
@@ -34,34 +28,34 @@ service cloud.firestore {
     }
 
     function validTags(tags) {
-      return tags is list && tags.size() <= 10;
+      return tags is list
+        && tags.size() <= 10;
     }
 
     function validArticle(data) {
       return isNonEmptyString(data.title, 4, 140)
-        && isOptionalString(data.subtitle, 0, 200)
         && isNonEmptyString(data.summary, 10, 400)
         && isNonEmptyString(data.body, 50, 50000)
         && data.publishedAt is timestamp
         && data.updatedAt is timestamp
         && validAuthor(data.author)
         && validTags(data.tags)
-        && (data.coverImageUrl == null
-            || isNonEmptyString(data.coverImageUrl, 1, 500))
+        && (
+          data.coverImageUrl == null
+          || isNonEmptyString(data.coverImageUrl, 1, 500)
+        )
         && data.readingTimeMinutes is int
         && data.readingTimeMinutes >= 1
         && data.readingTimeMinutes <= 60;
     }
 
-    // ========= Articles =========
     match /articles/{articleId} {
-      allow read: if true; // public reads
-      allow create, update: if isAuthenticated()
+      allow read: if true;
+      allow create, update: if isSignedIn()
         && validArticle(request.resource.data);
       allow delete: if false;
     }
 
-    // ========= Default deny =========
     match /{document=**} {
       allow read, write: if false;
     }

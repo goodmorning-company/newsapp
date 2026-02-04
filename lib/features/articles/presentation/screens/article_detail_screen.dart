@@ -10,6 +10,8 @@ import '../../../editorial_ai/domain/entities/draft_input.dart';
 import '../../../editorial_ai/domain/entities/improved_draft.dart';
 import '../../../editorial_ai/presentation/bloc/editorial_ai_cubit.dart';
 import '../../../editorial_ai/presentation/bloc/editorial_ai_state.dart';
+import '../bloc/create/create_article_cubit.dart';
+import '../bloc/create/create_article_state.dart';
 import '../bloc/detail/article_detail_cubit.dart';
 import '../bloc/detail/article_detail_state.dart';
 import '../models/article_draft_payload.dart';
@@ -35,6 +37,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
   String? _cachedTitle;
   String? _cachedBody;
   bool _aiApplied = false;
+  bool _isPublishing = false;
 
   @override
   void initState() {
@@ -85,17 +88,31 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
       return scaffold;
     }
 
-    return BlocListener<EditorialAiCubit, EditorialAiState>(
-      listener: (context, aiState) {
-        if (aiState is EditorialAiImproved) {
-          _applyAiDraft(aiState.draft);
-        } else if (aiState is EditorialAiError) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(aiState.message)));
+    return BlocListener<CreateArticleCubit, CreateArticleState>(
+      listener: (context, state) {
+        if (state is CreateArticleSuccess) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        } else if (state is CreateArticleError) {
+          setState(() {
+            _isPublishing = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
         }
       },
-      child: scaffold,
+      child: BlocListener<EditorialAiCubit, EditorialAiState>(
+        listener: (context, aiState) {
+          if (aiState is EditorialAiImproved) {
+            _applyAiDraft(aiState.draft);
+          } else if (aiState is EditorialAiError) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(aiState.message)));
+          }
+        },
+        child: scaffold,
+      ),
     );
   }
 
@@ -368,10 +385,13 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () {
-                  log('Back pressed', name: 'preview');
-                  Navigator.pop(context, _buildDraftPayload(article));
-                },
+                onPressed: _isPublishing
+                    ? null
+                    : () {
+                        if (_isPublishing) return;
+                        log('Back pressed', name: 'preview');
+                        Navigator.pop(context, _buildDraftPayload(article));
+                      },
                 icon: const Icon(Icons.arrow_back),
                 label: const Text('Back'),
               ),
@@ -379,7 +399,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: ElevatedButton(
-                onPressed: isAiWorking
+                onPressed: _isPublishing || isAiWorking
                     ? null
                     : (_aiApplied ? _discardAiChanges : _improveWithAI),
                 style: ElevatedButton.styleFrom(
@@ -393,14 +413,21 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  log('PREVIEW → publish tapped', name: 'preview');
-                },
+                onPressed: _isPublishing
+                    ? null
+                    : () {
+                        if (_isPublishing) return;
+                        log('PREVIEW → publish tapped', name: 'preview');
+                        setState(() {
+                          _isPublishing = true;
+                        });
+                        context.read<CreateArticleCubit>().submit(article);
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accent,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Publish'),
+                child: Text(_isPublishing ? 'Publishing…' : 'Publish'),
               ),
             ),
           ],

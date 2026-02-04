@@ -1,9 +1,13 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'firebase_options.dart';
+
 import 'features/articles/domain/use_cases/create_article.dart';
 import 'features/articles/domain/use_cases/get_article_by_id.dart';
 import 'features/articles/domain/use_cases/get_articles.dart';
@@ -13,7 +17,9 @@ import 'features/articles/presentation/bloc/feed/articles_feed_cubit.dart';
 import 'features/articles/presentation/screens/article_detail_screen.dart';
 import 'features/articles/presentation/screens/articles_feed_screen.dart';
 import 'features/articles/presentation/screens/create_article_screen.dart';
+
 import 'config/theme/theme_cubit.dart';
+
 import 'features/articles/data/data_sources/article_remote_data_source.dart';
 import 'features/articles/data/repository/article_repository_with_fallback.dart';
 import 'features/articles/data/repository/firebase_article_repository.dart';
@@ -25,22 +31,31 @@ import 'features/editorial_ai/data/repository/mock_editorial_ai_repository.dart'
 import 'features/editorial_ai/data/repository/openai_editorial_ai_repository.dart';
 import 'features/editorial_ai/domain/use_cases/improve_draft_with_ai.dart';
 import 'features/editorial_ai/presentation/bloc/editorial_ai_cubit.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-/// 🔐 MUST be const — evaluated at compile time
+/// 🔐 Compile-time injected key
 const String editorialAiKey = String.fromEnvironment('EDITORIAL_AI_KEY');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  /// Fail fast in dev if the key is missing
+  dev.log('[dev][bootstrap] App starting', name: 'dev');
+
   assert(
     editorialAiKey.isNotEmpty,
     'EDITORIAL_AI_KEY is missing. Run flutter with --dart-define=EDITORIAL_AI_KEY=...',
   );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseAuth.instance.signInAnonymously();
+
+  dev.log('[dev][firebase] Firebase initialized', name: 'dev');
+
+  if (FirebaseAuth.instance.currentUser == null) {
+    dev.log('[dev][auth] No user found, signing in anonymously', name: 'dev');
+    await FirebaseAuth.instance.signInAnonymously();
+  }
+
+  final user = FirebaseAuth.instance.currentUser;
+  dev.log('[dev][auth] Authenticated user uid=${user?.uid}', name: 'dev');
 
   runApp(const NewsApp());
 }
@@ -56,6 +71,8 @@ class NewsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    dev.log('[dev][di] Building repositories', name: 'dev');
+
     // --- Articles repositories ---
     final firebaseArticleRepo = FirebaseArticleRepositoryImpl(
       ArticleRemoteDataSource(FirebaseFirestore.instance),
@@ -79,6 +96,8 @@ class NewsApp extends StatelessWidget {
       fallback: editorialAiFallback,
     );
     final improveDraftWithAi = ImproveDraftWithAi(editorialAiRepository);
+
+    dev.log('[dev][di] Repositories ready', name: 'dev');
 
     return MultiRepositoryProvider(
       providers: [RepositoryProvider.value(value: articleRepository)],
@@ -130,7 +149,11 @@ class NewsApp extends StatelessWidget {
   }
 
   ThemeData _baseTheme(ColorScheme scheme, Color surface, Color background) {
-    final textTheme = Typography.englishLike2021.apply(fontFamily: 'Inter');
+    final textTheme = Typography.englishLike2021.apply(
+      fontFamily: 'Inter',
+      bodyColor: scheme.onSurface,
+      displayColor: scheme.onSurface,
+    );
     return ThemeData(
       colorScheme: scheme,
       useMaterial3: true,
@@ -150,7 +173,23 @@ class NewsApp extends StatelessWidget {
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-      textTheme: textTheme,
+      textTheme: textTheme.copyWith(
+        headlineMedium: textTheme.headlineMedium?.copyWith(
+          color: scheme.onSurface,
+          fontWeight: FontWeight.w800,
+        ),
+        titleLarge: textTheme.titleLarge?.copyWith(
+          color: scheme.onSurface,
+          fontWeight: FontWeight.w700,
+        ),
+        titleMedium: textTheme.titleMedium?.copyWith(
+          color: scheme.onSurface,
+          fontWeight: FontWeight.w700,
+        ),
+        labelSmall: textTheme.labelSmall?.copyWith(
+          color: scheme.onSurface,
+        ),
+      ),
     );
   }
 
