@@ -121,6 +121,7 @@ class NewsApp extends StatelessWidget {
             theme: _buildLightTheme(),
             darkTheme: _buildDarkTheme(),
             themeMode: themeState.themeMode,
+            debugShowCheckedModeBanner: false,
             initialRoute: '/',
             routes: {
               '/': (_) => const ArticlesFeedScreen(),
@@ -186,9 +187,7 @@ class NewsApp extends StatelessWidget {
           color: scheme.onSurface,
           fontWeight: FontWeight.w700,
         ),
-        labelSmall: textTheme.labelSmall?.copyWith(
-          color: scheme.onSurface,
-        ),
+        labelSmall: textTheme.labelSmall?.copyWith(color: scheme.onSurface),
       ),
     );
   }
