@@ -6,6 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../../domain/entities/article.dart';
+import '../../../editorial_ai/domain/entities/draft_input.dart';
+import '../../../editorial_ai/domain/entities/improved_draft.dart';
+import '../../../editorial_ai/presentation/bloc/editorial_ai_cubit.dart';
+import '../../../editorial_ai/presentation/bloc/editorial_ai_state.dart';
 import '../bloc/detail/article_detail_cubit.dart';
 import '../bloc/detail/article_detail_state.dart';
 import '../models/article_draft_payload.dart';
@@ -27,17 +31,23 @@ class ArticleDetailScreen extends StatefulWidget {
 }
 
 class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
+  Article? _previewDraft;
+  String? _cachedTitle;
+  String? _cachedBody;
+  bool _aiApplied = false;
+
   @override
   void initState() {
     super.initState();
     if (widget.isPreview) {
+      _previewDraft = widget.previewArticle;
       log('Preview opened', name: 'preview');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         title: const Text('Story'),
         automaticallyImplyLeading: !widget.isPreview,
@@ -63,12 +73,81 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
               },
             ),
       bottomNavigationBar:
-          widget.isPreview ? _buildPreviewActions(context) : null,
+          widget.isPreview
+              ? BlocBuilder<EditorialAiCubit, EditorialAiState>(
+                  builder: (context, aiState) =>
+                      _buildPreviewActions(context, aiState),
+                )
+              : null,
+    );
+
+    if (!widget.isPreview) {
+      return scaffold;
+    }
+
+    return BlocListener<EditorialAiCubit, EditorialAiState>(
+      listener: (context, aiState) {
+        if (aiState is EditorialAiImproved) {
+          _applyAiDraft(aiState.draft);
+        } else if (aiState is EditorialAiError) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(aiState.message)));
+        }
+      },
+      child: scaffold,
     );
   }
 
+  DraftInput _buildDraftInput(Article article) {
+    return DraftInput(title: article.title, content: article.body);
+  }
+
+  void _improveWithAI() {
+    final article = _previewDraft ?? widget.previewArticle;
+    if (article == null) return;
+    _cachedTitle = article.title;
+    _cachedBody = article.body;
+    context.read<EditorialAiCubit>().improveDraft(_buildDraftInput(article));
+  }
+
+  void _applyAiDraft(ImprovedDraft draft) {
+    final article = _previewDraft ?? widget.previewArticle;
+    if (article == null) return;
+    final updatedBody = draft.content;
+    setState(() {
+      _previewDraft = article.copyWith(
+        title: draft.title,
+        body: updatedBody,
+        summary: _buildSummary(updatedBody),
+        readingTimeMinutes: _estimateReadingTime(updatedBody),
+        updatedAt: DateTime.now().toUtc(),
+      );
+      _aiApplied = true;
+    });
+  }
+
+  void _discardAiChanges() {
+    final article = _previewDraft ?? widget.previewArticle;
+    if (article == null) return;
+    final restoredTitle = _cachedTitle ?? article.title;
+    final restoredBody = _cachedBody ?? article.body;
+    setState(() {
+      _previewDraft = article.copyWith(
+        title: restoredTitle,
+        body: restoredBody,
+        summary: _buildSummary(restoredBody),
+        readingTimeMinutes: _estimateReadingTime(restoredBody),
+        updatedAt: DateTime.now().toUtc(),
+      );
+      _cachedTitle = null;
+      _cachedBody = null;
+      _aiApplied = false;
+    });
+  }
+
   Widget _buildPreviewBody(BuildContext context) {
-    final article = widget.previewArticle;
+    final article = _previewDraft ?? widget.previewArticle;
     if (article == null) {
       return const Center(child: Text('Preview unavailable'));
     }
@@ -253,12 +332,19 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     return uri.isScheme('http') || uri.isScheme('https');
   }
 
-  Widget _buildPreviewActions(BuildContext context) {
-    final article = widget.previewArticle;
+  Widget _buildPreviewActions(
+    BuildContext context,
+    EditorialAiState aiState,
+  ) {
+    final article = _previewDraft ?? widget.previewArticle;
     if (article == null) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.primary;
     final surface = Theme.of(context).cardColor;
     final onSurface = Theme.of(context).colorScheme.onSurface;
+    final isAiWorking = aiState is EditorialAiImproving;
+    final aiLabel = isAiWorking
+        ? 'Improving…'
+        : (_aiApplied ? 'Discard AI changes' : 'Improve with AI');
     return SafeArea(
       top: false,
       child: Container(
@@ -293,15 +379,15 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  log('PREVIEW → improve tapped', name: 'preview');
-                },
+                onPressed: isAiWorking
+                    ? null
+                    : (_aiApplied ? _discardAiChanges : _improveWithAI),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accent.withValues(alpha: 0.16),
                   foregroundColor: onSurface,
                   elevation: 0,
                 ),
-                child: const Text('Improve with AI'),
+                child: Text(aiLabel),
               ),
             ),
             const SizedBox(width: 10),
@@ -329,6 +415,23 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
       localImagePath: article.coverImageUrl,
       selectedSection: article.tags.isNotEmpty ? article.tags.first : null,
     );
+  }
+
+  int _estimateReadingTime(String text) {
+    final words = text.trim().split(RegExp(r'\s+')).length;
+    return (words / 200).clamp(1, 15).ceil();
+  }
+
+  String _buildSummary(String text) {
+    final normalized = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (normalized.isEmpty) return '';
+    const minChars = 140;
+    const maxChars = 200;
+    if (normalized.length <= maxChars) return normalized;
+    final cut = normalized.substring(0, maxChars);
+    final lastSpace = cut.lastIndexOf(' ');
+    final safeCut = lastSpace >= minChars ? cut.substring(0, lastSpace) : cut;
+    return safeCut.trim();
   }
 
   String _formatDate(DateTime date) {

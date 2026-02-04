@@ -8,10 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../domain/constants/editorial_defaults.dart';
 import '../../domain/entities/article.dart';
 import '../../domain/entities/author.dart';
-import '../../../editorial_ai/domain/entities/draft_input.dart';
-import '../../../editorial_ai/domain/entities/improved_draft.dart';
-import '../../../editorial_ai/presentation/bloc/editorial_ai_cubit.dart';
-import '../../../editorial_ai/presentation/bloc/editorial_ai_state.dart';
 
 import '../bloc/create/create_article_cubit.dart';
 import '../bloc/create/create_article_state.dart';
@@ -33,10 +29,6 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
 
   String? _selectedSection;
   XFile? _selectedImage;
-  String? _cachedTitle;
-  String? _cachedBody;
-  bool _aiApplied = false;
-
   static const int _titleMin = 10;
   static const int _titleMax = 140;
   static const int _bodyMin = 200;
@@ -63,10 +55,6 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
       _selectedSection != null &&
       _selectedImage != null;
 
-  bool get _canImproveWithAi =>
-      _titleController.text.trim().length >= _titleMin &&
-      _bodyController.text.trim().length >= _bodyMin;
-
   String get _titleCount =>
       '${_titleController.text.trim().length} / $_titleMax (min $_titleMin)';
 
@@ -75,38 +63,6 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
 
   bool get _isTitleAtMax => _titleController.text.trim().length >= _titleMax;
   bool get _isBodyAtMax => _bodyController.text.trim().length >= _bodyMax;
-
-  DraftInput _buildDraftInput() {
-    return DraftInput(
-      title: _titleController.text.trim(),
-      content: _bodyController.text.trim(),
-    );
-  }
-
-  void _improveWithAI() {
-    _cachedTitle = _titleController.text;
-    _cachedBody = _bodyController.text;
-    final input = _buildDraftInput();
-    context.read<EditorialAiCubit>().improveDraft(input);
-  }
-
-  void _applyAiDraft(ImprovedDraft draft) {
-    setState(() {
-      _titleController.text = draft.title;
-      _bodyController.text = draft.content;
-      _aiApplied = true;
-    });
-  }
-
-  void _discardAiChanges() {
-    setState(() {
-      _titleController.text = _cachedTitle ?? _titleController.text;
-      _bodyController.text = _cachedBody ?? _bodyController.text;
-      _cachedTitle = null;
-      _cachedBody = null;
-      _aiApplied = false;
-    });
-  }
 
   Article _buildArticle() {
     final now = DateTime.now().toUtc();
@@ -221,80 +177,56 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
             },
             builder: (context, createState) {
               final isSubmitting = createState is CreateArticleSubmitting;
-              return BlocListener<EditorialAiCubit, EditorialAiState>(
-                listener: (context, aiState) {
-                  if (aiState is EditorialAiImproved) {
-                    _applyAiDraft(aiState.draft);
-                  } else if (aiState is EditorialAiError) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(aiState.message)));
-                  }
-                },
-                child: BlocBuilder<EditorialAiCubit, EditorialAiState>(
-                  builder: (context, aiState) {
-                    final isAiWorking = aiState is EditorialAiImproving;
-                    return SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(
-                        16,
-                        12,
-                        16,
-                        24 + MediaQuery.of(context).viewInsets.bottom,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (_aiApplied) ...[
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton.icon(
-                                onPressed: _discardAiChanges,
-                                icon: const Icon(Icons.undo),
-                                label: const Text('Discard AI changes'),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                          ],
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 16,
-                                backgroundImage: NetworkImage(
-                                  _author.avatarUrl ?? '',
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Story by',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface
-                                              .withValues(alpha: 0.6),
-                                        ),
-                                  ),
-                                  Text(
-                                    _author.name,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(fontWeight: FontWeight.w700),
-                                  ),
-                                ],
-                              ),
-                            ],
+              return SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  12,
+                  16,
+                  24 + MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundImage: NetworkImage(
+                            _author.avatarUrl ?? '',
                           ),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Story by',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                            ),
+                            Text(
+                              _author.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                           const SizedBox(height: 16),
                           TextField(
                             controller: _titleController,
                             maxLength: _titleMax,
-                            enabled: !isAiWorking && !isSubmitting,
+                            enabled: !isSubmitting,
                             onChanged: (_) => setState(() {}),
                             decoration: InputDecoration(
                               hintText: 'Write your title here...',
@@ -360,7 +292,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
                                   ),
                                 )
                                 .toList(),
-                            onChanged: isAiWorking || isSubmitting
+                            onChanged: isSubmitting
                                 ? null
                                 : (value) => setState(() {
                                     _selectedSection = value;
@@ -414,9 +346,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
                                     ? 'Attach Image'
                                     : 'Image Attached',
                               ),
-                              onPressed: isAiWorking || isSubmitting
-                                  ? null
-                                  : _selectCover,
+                              onPressed: isSubmitting ? null : _selectCover,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -466,7 +396,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
                             onChanged: (_) => setState(() {}),
                             maxLength: _bodyMax,
                             maxLines: 6,
-                            enabled: !isAiWorking && !isSubmitting,
+                            enabled: !isSubmitting,
                             decoration: InputDecoration(
                               hintText: 'Add article here...',
                               counterText: _bodyCount,
@@ -535,41 +465,6 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed:
-                                      !_canImproveWithAi ||
-                                              isAiWorking ||
-                                              isSubmitting
-                                          ? null
-                                          : _improveWithAI,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        !_canImproveWithAi ||
-                                                isAiWorking ||
-                                                isSubmitting
-                                            ? surface
-                                            : accent.withValues(alpha: 0.16),
-                                    foregroundColor: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.9),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: Text(
-                                    isAiWorking
-                                        ? 'Improving…'
-                                        : 'Improve with AI',
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: ElevatedButton(
                                   onPressed: !_isValid || isSubmitting
                                       ? null
                                       : _continueToPreview,
@@ -604,9 +499,6 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
                         ],
                       ),
                     );
-                  },
-                ),
-              );
             },
           ),
       ),
