@@ -37,73 +37,109 @@ This project reflects how I approach software: not just to make it work, but to 
 
 ---
 
-
 ## 5. Proof of the Project
 
 This section provides visual and functional proof of the final version of the Applicant Showcase App. Each artifact demonstrates not only technical correctness, but also strong editorial identity, product thinking, and user experience design.  
-The items are ordered from highest to lowest impact.
+The items are ordered from **highest to lowest impact**.
 
 ---
 
 ### 🎬 End-to-End Product Experience — From Launch to Publish
+
 This video showcases the complete lifecycle of the application: splash screen, home feed, article reading, AI-assisted editing, and publishing.  
 It demonstrates cohesion between design, architecture, and real production behavior.
 
-▶️ [Watch Full App Showcase](./videos/videoshowcase.webm)
+<p align="center">
+  <a href="./videos/videoshowcase.webm">
+    <img src="./screenshots/app_showcase_preview.png" width="720" alt="Full App Showcase Preview"/>
+  </a>
+</p>
+
+<p align="center">
+  ▶️ <a href="./videos/videoshowcase.webm"><strong>Watch Full App Showcase</strong></a>
+</p>
 
 ---
 
 ### 🤖 AI-Assisted Journals — Where Editors Meet Intelligence
+
 This feature introduces artificial intelligence as an **editorial assistant**, enhancing clarity, tone, and structure without replacing human authorship.
 
 > *“Journals assisted with AI — human ideas, machine precision.”*
 
-▶️ [Watch AI Feature Demo](./videos/aifeature.webm)
+<p align="center">
+  <a href="./videos/aifeature.webm">
+    <img src="./screenshots/ai_feature_preview.png" width="720" alt="AI Feature Preview"/>
+  </a>
+</p>
+
+<p align="center">
+  ▶️ <a href="./videos/aifeature.webm"><strong>Watch AI Feature Demo</strong></a>
+</p>
 
 ---
 
 ### 🏠 Home Feed — High-Impact Editorial Entry Point
+
 The home feed acts as a **digital magazine cover**, prioritizing visual hierarchy, readability, and immediacy.  
 Articles refresh automatically after publishing, reflecting real-time data from Firebase.
 
-![Home Screen](./screenshots/home_screen.png)
+<p align="center">
+  <img src="./screenshots/home_screen.png" width="520" alt="Home Feed"/>
+</p>
 
 ---
 
 ### 📖 Premium Reading Experience — Long-Form First
+
 Articles are designed for immersive reading. Typography, spacing, and contrast were carefully tuned to support long-form content while maintaining a modern editorial aesthetic.
 
-![Read Article](./screenshots/read_article.png)
+<p align="center">
+  <img src="./screenshots/read_article.png" width="520" alt="Article Reading Experience"/>
+</p>
 
 ---
 
 ### ✍️ Format by Markdown — Writers Focus on Content
+
 The app fully supports Markdown rendering, preserving semantic structure such as headings, emphasis, quotes, and lists.  
 This allows writers to focus on storytelling while the system ensures consistent presentation.
 
-![Markdown Rendering](./screenshots/markdown.png)
+<p align="center">
+  <img src="./screenshots/markdown.png" width="520" alt="Markdown Rendering"/>
+</p>
 
 ---
 
 ### 📰 Multiple Editorial Formats — Human & AI-Enhanced
+
 The platform supports both traditional articles and AI-enhanced drafts, enabling flexible editorial workflows and experimentation.
 
-![Standard Article](./screenshots/normal_format.png)  
-![AI Article](./screenshots/ia_format.png)
+<p align="center">
+  <img src="./screenshots/normalformat.png" width="420" alt="Standard Article Format"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="./screenshots/iaformat.png" width="420" alt="AI Enhanced Article Format"/>
+</p>
 
 ---
 
 ### 🌗 Adaptive Light Mode — Readability Without Compromise
+
 Light mode is fully supported to ensure accessibility and comfort in different environments, while preserving visual identity and contrast.
 
-![Light Mode](./screenshots/light_mode.png)
+<p align="center">
+  <img src="./screenshots/lightmode.png" width="520" alt="Light Mode"/>
+</p>
 
 ---
 
 ### 🚀 Editorial Identity from First Second — Splash Screen
+
 A clean, minimal splash screen establishes the app’s editorial tone immediately, reinforcing a premium product feel from launch.
 
-![Splash Screen](./screenshots/splash_screen.png)
+<p align="center">
+  <img src="./screenshots/splash_screen.png" width="420" alt="Splash Screen"/>
+</p>
 
 ---
 
